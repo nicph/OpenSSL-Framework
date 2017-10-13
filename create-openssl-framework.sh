@@ -22,8 +22,8 @@ if [ -d $FWROOT ]; then
     rm -rf $FWROOT
 fi
 
-ALL_SYSTEMS=("iPhone" "AppleTV")
-ALL_BITCODE_ARCHS=("arm64" "arm64")
+ALL_SYSTEMS=("iPhone" "AppleTV" "MacOSX")
+ALL_BITCODE_ARCHS=("arm64" "arm64" "x86_64")
 
 function check_bitcode() {
     local FWDIR=$1
@@ -69,6 +69,8 @@ if [ $FWTYPE == "dynamic" ]; then
 
         if [[ $PLATFORM == "AppleTV"* ]]; then
             MIN_SDK="-tvos_version_min 9.0"
+        elif [[ $PLATFORM == MacOSX* ]]; then
+            MIN_SDK="-macosx_version_min 10.11"
         else
             MIN_SDK="-ios_version_min 8.0"
         fi
