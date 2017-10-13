@@ -13,7 +13,7 @@ if [ -d $FWDIR ]; then
     rm -rf $FWDIR
 fi
 
-ALL_SYSTEMS=("iPhone" "AppleTV")
+ALL_SYSTEMS=("iPhone" "AppleTV" "MacOSX")
 
 if [ "$1" == "dynamic" ]; then
     DEVELOPER=`xcode-select -print-path`
@@ -40,6 +40,8 @@ if [ "$1" == "dynamic" ]; then
 
         if [[ $PLATFORM == AppleTV* ]]; then
             MIN_SDK="-tvos_version_min 9.0"
+        elif [[ $PLATFORM == MacOSX* ]]; then
+            MIN_SDK="-macosx_version_min 10.11"
         else
             MIN_SDK="-ios_version_min 8.0"
         fi
@@ -89,6 +91,8 @@ else
         echo "Created $SYSDIR/$FWNAME.framework"
     done
 fi
+
+# FIXME: check first available framework for Bitcode
 
 check_bitcode=`otool -arch arm64 -l $FWDIR/iPhone/$FWNAME.framework/$FWNAME | grep __bitcode`
 if [ -z "$check_bitcode" ]
