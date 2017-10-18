@@ -25,13 +25,13 @@ function check_bitcode() {
     FRAMEWORK_NAME=$(basename $1)
     FRAMEWORK_NAME=${FRAMEWORK_NAME%.framework}
 
-    if [[ TYPE == "static" ]]; then
+    if [[ $TYPE == "static" ]]; then
         BITCODE_PATTERN=__bitcode
     else
         BITCODE_PATTERN=__LLVM
     fi
 
-    if otool -arch arm64 -l "${FRAMEWORK}/${FRAMEWORK_NAME}" | grep -q "${BITCODE_PATTERN}"; then
+    if otool -arch arm64 -l "${FRAMEWORK}/${FRAMEWORK_NAME}" | grep "${BITCODE_PATTERN}" > /dev/null; then
         echo "INFO: $FRAMEWORK contains Bitcode"
     else
         echo "INFO: $FRAMEWORK doesn't contain Bitcode"
@@ -39,7 +39,7 @@ function check_bitcode() {
 }
 
 
-if [ "$1" == "dynamic" ]; then
+if [ "${1:-}" == "dynamic" ]; then
     DEVELOPER=`xcode-select -print-path`
     FW_EXEC_NAME="${FWNAME}.framework/${FWNAME}"
     INSTALL_NAME="@rpath/${FW_EXEC_NAME}"
