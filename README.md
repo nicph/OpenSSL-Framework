@@ -23,13 +23,13 @@ Compile OpenSSL 1.1.0f for all targets:
 Compile OpenSSL 1.0.2k for specific archs:
 
 ```
-./build-libssl.sh --version=1.0.2k --archs="ios_armv7 ios_arm64 mac_i386 mac_x86_64"
+./build-libssl.sh --version=1.0.2k --archs="ios_armv7 ios_arm64 mac_i386"
 ```
 
 Compile OpenSSL 1.1.0f for specific targets:
 
 ```
-./build-libssl.sh --version=1.1.0f --targets="ios-cross-armv7 ios-sim-cross-x86_64 macos-i386 macos64-x86_64"
+./build-libssl.sh --version=1.1.0f --targets="ios-cross-armv7 macos64-x86_64"
 ```
 
 For all options see:
