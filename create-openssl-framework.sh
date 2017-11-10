@@ -2,8 +2,13 @@
 
 set -euo pipefail
 
+function usage()
+{
+    echo "Usage: `basename $0` static|dynamic [--crypto-only]"
+}
+
 if [ $# == 0 ]; then
-    echo "Usage: `basename $0` static|dynamic"
+    usage
     exit 1
 fi
 
@@ -12,9 +17,31 @@ if [ ! -d lib ]; then
     exit 1
 fi
 
-FWTYPE=$1
+
+
 FWNAME=openssl
 FWROOT=frameworks
+CRYPTO_ONLY=
+
+for i in "$@"
+do
+    case $i in
+        --crypto-only)
+            CRYPTO_ONLY=1
+            shift
+            ;;
+
+        static|dynamic)
+            FWTYPE=$1
+            shift
+            ;;
+        *)
+            echo "Unknown argument: ${i}"
+            usage
+            exit 1
+            ;;
+    esac
+done
 
 if [ -d $FWROOT ]; then
     echo "Removing previous $FWNAME.framework copies"
@@ -38,6 +65,10 @@ function check_bitcode() {
         echo "INFO: $FWDIR doesn't contain Bitcode"
     fi
 }
+
+if [[ $CRYPTO_ONLY ]]; then
+    echo "INFO: Will use libcrypto only"
+fi
 
 if [ $FWTYPE == "dynamic" ]; then
     DEVELOPER=`xcode-select -print-path`
@@ -78,7 +109,9 @@ if [ $FWTYPE == "dynamic" ]; then
         mkdir $TARGETOBJ
         cd $TARGETOBJ
         ar -x ../lib/libcrypto.a
-        ar -x ../lib/libssl.a
+        if [[ ! $CRYPTO_ONLY ]]; then
+            ar -x ../lib/libssl.a
+        fi
         cd ..
 
         ld obj/*.o \
@@ -125,7 +158,11 @@ else
         if [[ -e lib/libcrypto-$SYS.a && -e lib/libssl-$SYS.a ]]; then
             echo "Creating framework for $SYS"
             mkdir -p $FWDIR/Headers
-            libtool -static -o $FWDIR/$FWNAME lib/libcrypto-$SYS.a lib/libssl-$SYS.a
+            LIBS=lib/libcrypto-$SYS.a
+            if [[ ! $CRYPTO_ONLY ]]; then
+                LIBS="$LIBS lib/libssl-$SYS.a"
+            fi
+            libtool -static -o $FWDIR/$FWNAME $LIBS
             cp -r include/$FWNAME/* $FWDIR/Headers/
             cp -L assets/$SYS/Info.plist $FWDIR/Info.plist
             echo "Created $FWDIR"
